@@ -36,14 +36,21 @@ STDERR:{output.stderr}
     
 schema_run_python_file = types.FunctionDeclaration(
     name="run_python_file",
-    description="Run a python file",
+    description="Run a python file , accepts additional arguments",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
-            "directory": types.Schema(
+            "file_path": types.Schema(
                 type=types.Type.STRING,
-                description="to run a python file",
+                description="the path to the file which we ar supposed to run",
             ),
+            "args": types.Schema(
+                type=types.Type.ARRAY,
+                description="the optional array of strings to be used as arguments to be sent to run the python file",
+                items = types.Schema(
+                type=types.Type.STRING,            
+            ),)
+        
         },
     ),
 )

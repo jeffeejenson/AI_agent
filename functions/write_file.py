@@ -25,13 +25,17 @@ def write_file(working_directory, file_path, content):
 
 schema_write_file = types.FunctionDeclaration(
     name="write_file",
-    description="Write into a file",
+    description="Write into a file , accepts a content argument. Overwrites a new file, if it does not exists, it creates a path and a file",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
-            "directory": types.Schema(
+            "file_path": types.Schema(
                 type=types.Type.STRING,
-                description="to write into a file, an ECHO into a file",
+                description="This is the path to write into",
+            ),
+            "content": types.Schema(
+                type=types.Type.STRING,
+                description="the content to be written into",
             ),
         },
     ),

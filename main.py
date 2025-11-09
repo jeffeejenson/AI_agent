@@ -7,7 +7,7 @@ from functions.get_files_info import *
 from functions.get_file_content import *
 from functions.write_file import *
 from functions.run_python_file import *
-
+from call_function import *
 system_prompt = """
 You are a helpful AI coding agent.
 
@@ -47,28 +47,42 @@ def main():
     ])
     config=types.GenerateContentConfig(
     tools=[available_functions], system_instruction=system_prompt)
-    response = client.models.generate_content(
-    model='gemini-2.5-flash', 
-    contents=messages , 
-    config = config
-    )
 
-    if response.function_calls:
-        for function_call_part in response.function_calls:
-            print(f"Calling function: {function_call_part.name}({function_call_part.args})")
-            return
-    else:
-        print(response.text)
-
-    if verbose_flag:
+    max_iter = 20
+    for i in range(0,max_iter):
+        response = client.models.generate_content(
+        model='gemini-2.5-flash', 
+        contents=messages , 
+        config = config
+        )
+        if verbose_flag:
+            if response is None or response.usage_metadata is None:
+                return
+            print(f"User prompt: {prompt}")
+            print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
+            print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
         
-        if response is None or response.usage_metadata is None:
+        if response.candidates:
+            for candidate in response.candidates:
+                if candidate is None or candidate.content is None:
+                    continue
+                messages.append(candidate.content)
+
+        if response.function_calls:
+            for function_call_part in response.function_calls:
+                result = (call_function(function_call_part , verbose_flag))
+                messages.append(result)
+
+        else:
+            print(response.text)
             return
-        print(f"User prompt: {prompt}")
-        print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
-        print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
+
+        
+             
+    
     
 
+   
 main()
 
 
